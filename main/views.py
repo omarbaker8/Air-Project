@@ -36,6 +36,10 @@ class HomeView(TemplateView):
 
             # Highest and Lowest AQI with station names
             latest_data_with_int_aqi = latest_data.annotate(aqi_int=Cast('aqi', IntegerField()))
+            # Filter out entries where aqi is not a valid number
+            latest_data_with_int_aqi = latest_data_with_int_aqi.filter(
+                Q(aqi__isnull=False) & ~Q(aqi__exact='') & ~Q(aqi__exact='-')
+            )
             
             highest_aqi_data = latest_data_with_int_aqi.order_by('-aqi_int').first()
             # Filter out entries where aqi is not a valid number
