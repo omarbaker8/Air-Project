@@ -1,0 +1,79 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Air Maps Home{% endblock %}
+
+{% block content %}
+{% if total_live_stations > 0 %}
+<div>
+    <dl class="mb-5 grid grid-cols-1 gap-5 sm:grid-cols-3">
+        <div id="total-live-stations" class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+            <dt class="truncate text-sm font-medium text-gray-500">Total Live Stations</dt>
+            <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{ total_live_stations }}</dd>
+        </div>
+        <div id="highest-aqi" class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+            <dt class="truncate text-sm font-medium text-gray-500">Highest AQI</dt>
+            <dt class="truncate text-sm font-thin text-gray-500">{{ highest_aqi.station }}</dt>
+            <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{ highest_aqi.value }}</dd>
+        </div>
+        <div id="lowest-aqi" class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+            <dt class="truncate text-sm font-medium text-gray-500">Lowest AQI</dt>
+            <dt class="truncate text-sm font-thin text-gray-500">{{ lowest_aqi.station }}</dt>
+            <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{ lowest_aqi.value }}</dd>
+        </div>
+    </dl>
+</div>
+{% endif %}  
+<div class="main-content lg:flex lg:justify-between">
+    <div class="divide-y divide-gray-200 overflow-hidden rounded-lg bg-white shadow {% if user.is_authenticated %}lg:w-1/2 lg:mr-3 mb-5{% else %}lg:w-full{% endif %}">
+        <div class="px-4 py-5 sm:p-6">
+            <iframe id="map-frame" class="border-3 border-gray-500 rounded-lg" src="{% url 'map_iframe' %}" width="100%" height="500px" frameborder="0"></iframe>
+        </div>
+        <div class="px-4 py-4 sm:px-6">
+            <p class="text-sm font-thin">Air Quality Index (AQI) data provided by World Air Quality Index Project.</p>        
+        </div>
+    </div>
+    {% if user.is_authenticated %}
+    <div id="favorite-locations" class="divide-y divide-gray-200 overflow-hidden rounded-lg bg-white shadow lg:w-1/2 lg:ml-3 mb-5">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="mb-20">
+                <label id="listbox-label" class="block text-sm font-medium leading-6 text-gray-900">Favorite Locations</label>
+                <div class="relative mt-2">
+                    <button id="location-dropdown" type="button" class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="listbox-label">
+                        <span class="block truncate">Select a location</span>
+                        <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                            <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z" clip-rule="evenodd" />
+                            </svg>
+                        </span>
+                    </button>
+            
+                    <ul id="location-list" class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm" tabindex="-1" role="listbox" aria-labelledby="listbox-label" aria-activedescendant="listbox-option-0">
+                        {% for uid, station_data in data.items %}
+                            <li class="relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900" id="listbox-option-{{ forloop.counter0 }}" role="option" data-uid="{{ uid }}">
+                                <span class="block truncate font-normal">{{ station_data.0.station }}</span>
+                                <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600">
+                                    <svg class="h-5 w-5 hidden" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                                    </svg>
+                                </span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <canvas id="aqi-chart" class="items-center"></canvas>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'main/js/main.js' %}"></script>
+{% if user.is_authenticated %}
+    <script>window.stationData = {{ data|safe }};</script>
+    <script src="{% static 'main/js/home.js' %}"></script>
+{% endif %}
+{% endblock %}

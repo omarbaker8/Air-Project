@@ -1,0 +1,76 @@
+<!-- register.html -->
+{% extends "main/base.html" %}
+{% load tailwind_filters %}
+{% load static %}
+{% block content %}
+<div class="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
+    <div class="bg-white px-6 py-12 lg:py-0 lg:px-1 shadow sm:rounded-lg sm:px-12">
+        <div class="flex min-h-full flex-col justify-center px-6 py-4">
+        <div class="sm:mx-auto sm:w-full sm:max-w-sm">
+            <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Profile</h2>
+            <img id="avatar-image" class="inline-block h-14 w-14 rounded-full" src="{% static user.profile.get_avatar_url %}" alt="User Avatar">
+
+        </div>
+
+        <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+            <form class="space-y-6" method="POST">
+            {% csrf_token %}
+            {{ u_form|crispy }}
+            <div class="hidden">
+                {{ p_form.avatar }}
+            </div>
+            <p class="block text-gray-700 text-sm font-bold mb-2">Your Avatar:</p>
+            <div class="avatar-grid grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-4">
+                {% for value, name in avatar_choices %}
+                    <img src="{% static 'static/images/avatars/'|add:value|add:'.png' %}" 
+                         alt="{{ name }}" 
+                         data-value="{{ value }}" 
+                         class="avatar-option w-16 h-16 object-cover cursor-pointer rounded-full hover:ring-4 hover:ring-pink-600 transition-all duration-200">
+                {% endfor %}
+            </div>
+            <div>
+                <button type="submit" class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Save</button>
+            </div>
+            </form>
+        </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const avatarImage = document.getElementById('avatar-image');
+    const avatarInput = document.getElementById('id_avatar');
+    const avatarOptions = document.querySelectorAll('.avatar-option');
+
+    // Function to update the selected avatar
+    function updateAvatar(newSrc, newValue) {
+        avatarImage.src = newSrc;
+        avatarInput.value = newValue;
+    }
+
+    // Add click event listeners to all avatar options
+    avatarOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            const newSrc = this.src;
+            const newValue = this.getAttribute('data-value');
+            updateAvatar(newSrc, newValue);
+
+            // Remove highlight from all options
+            avatarOptions.forEach(opt => opt.classList.remove('ring-4', 'ring-pink-600'));
+            
+            // Add highlight to selected option
+            this.classList.add('ring-4', 'ring-pink-600');
+        });
+    });
+
+    // Highlight the currently selected avatar on page load
+    const currentAvatarValue = avatarInput.value;
+    const currentAvatarOption = document.querySelector(`.avatar-option[data-value="${currentAvatarValue}"]`);
+    if (currentAvatarOption) {
+        currentAvatarOption.classList.add('ring-4', 'ring-pink-600');
+    }
+});
+</script>
+{% endblock %}
