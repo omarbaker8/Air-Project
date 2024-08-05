@@ -9,7 +9,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         # api_token = os.environ.get('API_TOKEN')
-        api_token = '74d142a061ee4b7631341b9bd8e1e7150800cc1b'
+        api_token = os.environ.get('WAQI_API_TOKEN')
         response = requests.get(f'https://api.waqi.info/map/bounds/?token={api_token}&latlng=51.4,-10.5,55.4,-5.4')
         data = response.json()
 

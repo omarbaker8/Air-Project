@@ -24,7 +24,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-^vc)nqavjdiqp(g*6#ra=4)t*ha(m%b+^4fk*ndqhd#v2_0l!9'
+
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -92,7 +93,6 @@ WSGI_APPLICATION = 'air_project.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
