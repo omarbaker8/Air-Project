@@ -32,7 +32,7 @@ def fetch_air_quality_data(map, favorites=None):
                     continue  # Skip items with non-numeric AQI
         else:
             # Make a new API call
-            api_token = '74d142a061ee4b7631341b9bd8e1e7150800cc1b'  # Replace with your actual token
+            api_token = os.environ.get('WAQI_API_TOKEN')
             response = requests.get(f'https://api.waqi.info/map/bounds/?token={api_token}&latlng=51.4,-10.5,55.4,-5.4')
             data = response.json()
 
